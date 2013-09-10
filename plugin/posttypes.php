@@ -25,13 +25,13 @@ class WPApps_Posttypes {
     function __construct($main) {
         $this->main = $main;
 
-        add_action('init', [$this, "register_event"]);
-        add_action('init', [$this, "register_idea"]);
-        add_action('init', [$this, "register_app"]);
-        add_action('init', [$this, "register_submission"]);
+        add_action('init', array($this, "register_event"));
+        add_action('init', array($this, "register_idea"));
+        add_action('init', array($this, "register_app"));
+        add_action('init', array($this, "register_submission"));
 
-        add_action("manage_event_posts_custom_column", [$this, 'custom_event_column'], 10, 2);
-        add_filter('manage_event_posts_columns' , [$this, 'custom_event_columns']);
+        add_action("manage_event_posts_custom_column", array($this, 'custom_event_column'), 10, 2);
+        add_filter('manage_event_posts_columns' , array($this, 'custom_event_columns'));
     }
 
     ### Events
@@ -64,7 +64,7 @@ class WPApps_Posttypes {
             'hierarchical' => false,
             'supports' => array( 'title', 'editor', 'comments' ),
             'map_meta_cap' => true,
-            'capabilities' => ['read' => 'read_events']
+            'capabilities' => array('read' => 'read_events')
         ));
     }
 
@@ -113,7 +113,7 @@ class WPApps_Posttypes {
             'hierarchical' => false,
             'supports' => array( 'title', 'editor', 'comments' ),
             'map_meta_cap' => true,
-            'capabilities' => ['read' => 'read_events']
+            'capabilities' => array('read' => 'read_events')
         ));
     }
 
@@ -145,7 +145,7 @@ class WPApps_Posttypes {
             'hierarchical' => false,
             'supports' => array( 'title', 'editor', 'comments' ),
             'map_meta_cap' => true,
-            'capabilities' => ['read' => 'read_events' /*NOT read_event*/]
+            'capabilities' => array('read' => 'read_events' /*NOT read_event*/)
         ));
     }
 
@@ -177,7 +177,7 @@ class WPApps_Posttypes {
             'hierarchical' => false,
             'supports' => array( 'title', 'editor', 'comments' ),
             'map_meta_cap' => true,
-            'capabilities' => ['read' => 'read_events' /*NOT read_event*/]
+            'capabilities' => array('read' => 'read_events' /*NOT read_event*/)
         ));
     }
 

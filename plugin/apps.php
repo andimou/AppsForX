@@ -78,7 +78,7 @@ class WPApps {
             // By resetting the $parent_file and $submenu_file variable, we can maintain the menu highlight
             add_action('admin_head', function() {
                 global $submenu_file, $parent_file;
-                $types = ["event", "idea", "app", "submission"];
+                $types = array("event", "idea", "app", "submission");
                 $ptype = @($_REQUEST["post_type"] ?: get_post_type(get_the_ID()));
 
                 if (in_array($ptype, $types)) {
@@ -89,9 +89,9 @@ class WPApps {
 
             // Add the menu/submenu items: Apps4X > Overview|Events|Ideas|Apps
             add_action('admin_menu', function() {
-                add_menu_page(__("Apps4X", WPAPPS_TRANS), __("Apps4X", WPAPPS_TRANS), "edit_ideas", "wpapps", [$this, "page_overview"], WPAPPS_URL . "/style/calendar16.png", (string)(27+M_PI)); // rule of pi
+                add_menu_page(__("Apps4X", WPAPPS_TRANS), __("Apps4X", WPAPPS_TRANS), "edit_ideas", "wpapps",array($this, "page_overview"), WPAPPS_URL . "/style/calendar16.png", (string)(27+M_PI)); // rule of pi
 
-                add_submenu_page("wpapps", __("Overview", WPAPPS_TRANS), __("Overview", WPAPPS_TRANS), "edit_ideas", "wpapps", [$this, "page_overview"]); // overwrite menu title
+                add_submenu_page("wpapps", __("Overview", WPAPPS_TRANS), __("Overview", WPAPPS_TRANS), "edit_ideas", "wpapps", array($this, "page_overview")); // overwrite menu title
                 add_submenu_page("wpapps", __("Events", WPAPPS_TRANS), __("Events", WPAPPS_TRANS), "edit_events", "edit.php?post_type=event");
                 add_submenu_page("wpapps", __("Ideas", WPAPPS_TRANS), __("Ideas", WPAPPS_TRANS), "edit_ideas", "edit.php?post_type=idea");
                 add_submenu_page("wpapps", __("Apps", WPAPPS_TRANS), __("Apps", WPAPPS_TRANS), "edit_apps", "edit.php?post_type=app");
@@ -100,7 +100,7 @@ class WPApps {
 
             // Add admin css
             add_action('admin_init', function() {
-                wp_register_style('wpapps-admin', WPAPPS_URL . '/style/wpapps-admin.css', [],  self::WPAPPS_VERSION);
+                wp_register_style('wpapps-admin', WPAPPS_URL . '/style/wpapps-admin.css', array(),  WPAPPS_VERSION);
                 wp_enqueue_style('wpapps-admin');
             });
         }
@@ -142,9 +142,9 @@ class WPApps {
      * We can save user options to the database, but it isn't used at the moment
      */
     private function setup_options() {
-        $defaults = [
+        $defaults = array(
             "plugin_version" => 0
-        ];
+        );
 
         $this->options = get_option("wpapps_options", $defaults);
     }
@@ -168,11 +168,11 @@ class WPApps {
 
         add_filter('template_include', function($template_path) {
             $post_type = get_post_type();
-            if (in_array($post_type, ['event', 'idea', 'app', 'submission'])) {
+            if (in_array($post_type, array('event', 'idea', 'app', 'submission'))) {
                 $type = is_single() ? "single" : (is_archive() ? "archive" : false);
                 if ($type) {
                     $tplfile = "$type-$post_type.php";
-                    if ($theme_file = locate_template([$tplfile])) {
+                    if ($theme_file = locate_template(array($tplfile))) {
                         $template_path = $theme_file;
                     } else {
                         $template_path = WPAPPS_PATH . '/tpls/' . $tplfile;
@@ -194,11 +194,11 @@ class WPApps {
 
         register_activation_hook(__FILE__, function() use ($p2p) {
             if (!file_exists($p2p))
-                wpapps_error(__("Some files appear to be missing. Git has to be cloned recursively!", WPAPPS_TRANS));
+                $this->wpapps_error(__("Some files appear to be missing. Git has to be cloned recursively!", WPAPPS_TRANS));
 
             $pfile = WPAPPS_PATH . '/lib/posts-to-posts/core/side-post.php';
             if (!is_writable($pfile))
-                wpapps_error(sprintf(__("Can't write to %s which has to be patched. Apply patch manually or make the file writable.", WPAPPS_TRANS), $pfile));
+                $this->wpapp_error(sprintf(__("Can't write to %s which has to be patched. Apply patch manually or make the file writable.", WPAPPS_TRANS), $pfile));
             else
                 file_put_contents($pfile, str_replace("->edit_posts", "->read", file_get_contents($pfile)));
         });
@@ -207,26 +207,26 @@ class WPApps {
             require $p2p;
 
         add_action('p2p_init', function () {
-            p2p_register_connection_type([
+            p2p_register_connection_type(array(
                 'name' => 'events_to_ideas',
                 'from' => 'event',
                 'to' => 'idea',
                 'can_create_post' => current_user_can("edit_others_ideas") // edit_events?
-            ]);
+            ));
 
-            p2p_register_connection_type([
+            p2p_register_connection_type(array(
                 'name' => 'ideas_to_apps',
                 'from' => 'idea',
                 'to' => 'app',
                 'can_create_post' => current_user_can("edit_apps")
-            ]);
+            ));
 
-            p2p_register_connection_type([
+            p2p_register_connection_type(array(
                 'name' => 'apps_to_events',
                 'from' => 'app',
                 'to' => 'event',
                 'can_create_post' => current_user_can("link_apps")
-            ]);
+            ));
         });
     }
 
@@ -240,12 +240,12 @@ class WPApps {
         // http://stackoverflow.com/a/16656057
         // http://wordpress.stackexchange.com/a/88397
         register_activation_hook(__FILE__, function () {
-            add_role('wpapps_submitter', 'Submitter', ["read" => true]);
+            add_role('wpapps_submitter', 'Submitter', array("read" => true));
 
-            $allcaps = [];
-            $roles = [
-                "subscriber" => [],
-                "contributor" => [
+            $allcaps = array();
+            $roles = array(
+                "subscriber" => array(),
+                "contributor" => array(
                     'read_idea' => true,
                     'read_ideas' => true,
                     'edit_ideas' => true,
@@ -267,10 +267,10 @@ class WPApps {
 
                     'read_event' => true,
                     'read_events' => true,
-                ],
-                "author" => [],
-                "wpapps_submitter" => [],
-                "editor" => [
+                ),
+                "author" => array(),
+                "wpapps_submitter" =>array(),
+                "editor" => array(
                     'edit_others_ideas' => true,
                     'delete_private_ideas' => true,
                     'delete_others_ideas' => true,
@@ -294,9 +294,9 @@ class WPApps {
                     'delete_others_events' => true,
                     'edit_private_events' => true,
                     'publish_events' => true,
-                ],
-                "administrator" => []
-            ];
+                ),
+                "administrator" => array()
+            );
 
             foreach($roles as $role => $caps) {
                 $allcaps = array_merge($allcaps, $caps);
